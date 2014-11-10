@@ -8,4 +8,5 @@ Usage:
 from paymentsense import send_payment_sense
 hash = send_payment_sense()
 
-# hash will then be the hash key to send to the server
+hash will then be the hash key to send to the server
+# NOTE CURRENTLY UN TESTED AND WIP
