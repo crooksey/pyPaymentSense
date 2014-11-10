@@ -241,7 +241,7 @@ def send_payment_sense(PreSharedKey, MerchantID, Password, Amount,
 	if pay_form_check == False:
 		raise Exception("PaymentFormDisplaysResult accepts True or False")
 
-	prehash_skeleton = """PreSharedKey={PreSharedKey}&MerchantID={MerchantID}&Password={Password}&Amount={Amount}&CurrencyCode={CurrencyCode}&EchoAVSCheckResult={EchoAVSCheckResult}&EchoThreeDSecureAuthenticationCheckResult={EchoThreeDSecureAuthenticationCheckResult}&EchoCardType={EchoCardType}&AVSOverridePolicy={AVSOverridePolicy}&CV2OverridePolicy={CV2OverridePolicy}&ThreeDSecureOverridePolicy={ThreeDSecureOverridePolicy}&OrderID={OrderID}&TransactionType={TransactionType}&TransactionDateTime={TransactionDateTime}&CallbackURL={CallbackURL}&OrderDescription={OrderDescription}&CustomerName={CustomerName}&Address1={Address1}&Address2={Address2}&Address3={Address3}&Address4={Address4}&City={City}&State={State}&PostCode={PostCode}&CountryCode={CountryCode}&EmailAddress={EmailAddress}&PhoneNumber={PhoneNumber}&EmailAddressEditable={EmailAddressEditable}&PhoneNumberEditable={PhoneNumberEditable}&CV2Mandatory={CV2Mandatory}&Address1Mandatory={Address1Mandatory}&CityMandatory={CityMandatory}&PostCodeMandatory={PostCodeMandatory}&StateMandatory={StateMandatory}&CountryMandatory={CountryMandatory}&ServerResultURL={ServerResultURL}&PaymentFormDisplaysResult={PaymentFormDisplaysResult}"""
+	prehash_skeleton = """PreSharedKey={PreSharedKey}&MerchantID={MerchantID}&Password={Password}&Amount={Amount}&CurrencyCode={CurrencyCode}&EchoAVSCheckResult={EchoAVSCheckResult}&EchoCV2CheckResult={EchoCV2CheckResult}&EchoThreeDSecureAuthenticationCheckResult={EchoThreeDSecureAuthenticationCheckResult}&EchoCardType={EchoCardType}&AVSOverridePolicy={AVSOverridePolicy}&CV2OverridePolicy={CV2OverridePolicy}&ThreeDSecureOverridePolicy={ThreeDSecureOverridePolicy}&OrderID={OrderID}&TransactionType={TransactionType}&TransactionDateTime={TransactionDateTime}&CallbackURL={CallbackURL}&OrderDescription={OrderDescription}&CustomerName={CustomerName}&Address1={Address1}&Address2={Address2}&Address3={Address3}&Address4={Address4}&City={City}&State={State}&PostCode={PostCode}&CountryCode={CountryCode}&EmailAddress={EmailAddress}&PhoneNumber={PhoneNumber}&EmailAddressEditable={EmailAddressEditable}&PhoneNumberEditable={PhoneNumberEditable}&CV2Mandatory={CV2Mandatory}&Address1Mandatory={Address1Mandatory}&CityMandatory={CityMandatory}&PostCodeMandatory={PostCodeMandatory}&StateMandatory={StateMandatory}&CountryMandatory={CountryMandatory}&ResultDeliveryMethod={ResultDeliveryMethod}&ServerResultURL={ServerResultURL}&PaymentFormDisplaysResult={PaymentFormDisplaysResult}"""
 
 	prehash = prehash_skeleton.format(
 		PreSharedKey=PreSharedKey,
@@ -250,6 +250,7 @@ def send_payment_sense(PreSharedKey, MerchantID, Password, Amount,
 		Amount=Amount,
 		CurrencyCode=CurrencyCode,
 		EchoAVSCheckResult=EchoAVSCheckResult,
+		EchoCV2CheckResult=EchoCV2CheckResult,
 		EchoThreeDSecureAuthenticationCheckResult=
 			EchoThreeDSecureAuthenticationCheckResult,
 		EchoCardType=EchoCardType,
@@ -280,14 +281,15 @@ def send_payment_sense(PreSharedKey, MerchantID, Password, Amount,
 		PostCodeMandatory=PostCodeMandatory,
 		StateMandatory=StateMandatory,
 		CountryMandatory=CountryMandatory,
+		ResultDeliveryMethod=ResultDeliveryMethod,
 		ServerResultURL=ServerResultURL,
 		PaymentFormDisplaysResult=PaymentFormDisplaysResult
 		)
 	
 	prehash_remove_none = prehash.replace("None","")
 	# Replace None with empty string, then remove any \n instances
-	prehash_clean1 = prehash_remove_none.replace("\n","")
-	prehash_clean = prehash_remove_none.replace(" ","")
+	prehash_clean = prehash_remove_none.replace("\n","")
+	#prehash_clean = prehash_remove_none.replace(" ","")
 	print prehash_clean
 	# lastly generate the sha1 string to pass to the URL
 	sha1_string = hashlib.sha1(prehash_clean).hexdigest()
@@ -299,7 +301,7 @@ def send_payment_sense(PreSharedKey, MerchantID, Password, Amount,
 
 post_addr = "https://mms.paymentsensegateway.com/Pages/PublicPages/PaymentForm.aspx"
 PreSharedKey = "XXX"
-MerchantID = "XXX"
+MerchantID = "TEST"
 Password = "XXX"
 Amount = "34120"
 CurrencyCode = "826"
