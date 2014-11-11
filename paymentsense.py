@@ -1,10 +1,7 @@
 # coding: utf-8
 # send payments and information to payment sense API
-import datetime
-import pytz
 import re
 import hashlib
-import requests
 
 def is_number(s):
     try:
@@ -13,18 +10,18 @@ def is_number(s):
     except ValueError:
         return False
 
-def send_payment_sense(PreSharedKey, MerchantID, Password, Amount,
+def build_hash(PreSharedKey, MerchantID, Password, Amount,
 	CurrencyCode, EchoAVSCheckResult, EchoCV2CheckResult, 
 	EchoThreeDSecureAuthenticationCheckResult, EchoCardType, 
 	OrderID, TransactionType, CallbackURL, EmailAddressEditable, 
 	PhoneNumberEditable, CV2Mandatory, Address1Mandatory, CityMandatory, 
-	PostCodeMandatory, StateMandatory, CountryMandatory, ServerResultURL, 
+	PostCodeMandatory, StateMandatory, CountryMandatory, ResultDeliveryMethod,
 	PaymentFormDisplaysResult, TransactionDateTime,	AVSOverridePolicy=None, 
 	ThreeDSecureOverridePolicy=None, CV2OverridePolicy=None, 
 	OrderDescription=None, CustomerName=None, Address1=None, Address2=None, 
 	Address3=None, Address4=None, City=None, State=None, PostCode=None, 
 	CountryCode=None, EmailAddress=None, PhoneNumber=None,
-	ResultDeliveryMethod=None):
+	ServerResultURL=None):
 
 	# This is the order the variables must be passed to payment sense,
 	# where None has been defined, these are the non required variables
@@ -296,90 +293,3 @@ def send_payment_sense(PreSharedKey, MerchantID, Password, Amount,
 
 	# return sha1 hash of all values
 	return sha1_string
-
-# now lets build a POST
-
-post_addr = "https://mms.paymentsensegateway.com/Pages/PublicPages/PaymentForm.aspx"
-PreSharedKey = "XXX"
-MerchantID = "TEST"
-Password = "XXX"
-Amount = "34120"
-CurrencyCode = "826"
-EchoAVSCheckResult = False
-EchoCardType = False
-OrderID = "testOrder416"
-TransactionType = "SALE"
-CallbackURL = "http://solentwholesale.com"
-EmailAddressEditable = True
-PhoneNumberEditable = False
-CV2Mandatory = True
-Address1Mandatory = True
-CityMandatory = False
-PostCodeMandatory = True
-StateMandatory = False
-CountryMandatory = False
-ServerResultURL = "SERVER"
-PaymentFormDisplaysResult = True
-EchoCV2CheckResult = False
-EchoThreeDSecureAuthenticationCheckResult = False
-
-# datetime check, we set this manually, it is not passed to the function
-# TransactionDateTime needs to be in the format of 
-# “YYYY-MM-DD HH:MM:SS +00:00”, with the time in 24hr format, 
-# where 00:00 is the offset from UTC - e.g. “2013-07-22 13:46 +01:00”
-
-# define the output format
-fmt = '%Y-%m-%d %H:%M:%S %z'
-
-# Add your own timezone here
-d = datetime.datetime.now(pytz.timezone("Europe/London"))
-TransactionDateTime_unclean = d.strftime(fmt)
-
-# Now the python datetime method doesnt include a colon in the UTC offset
-# which means we need this lovely messy code below
-last_c1 = TransactionDateTime_unclean[-1]
-last_c2 = TransactionDateTime_unclean[-2]
-end_str = ":" + last_c2 + last_c1
-TransactionDateTime_remove = TransactionDateTime_unclean[:-2]
-TransactionDateTime = TransactionDateTime_remove + end_str
-
-sha1_hash = send_payment_sense(
-	PreSharedKey = PreSharedKey,
-	MerchantID = MerchantID,
-	Password = Password,
-	Amount = Amount,
-	CurrencyCode = CurrencyCode,
-	EchoAVSCheckResult = EchoAVSCheckResult, 
-	EchoCV2CheckResult = EchoCV2CheckResult,
-	EchoThreeDSecureAuthenticationCheckResult = EchoThreeDSecureAuthenticationCheckResult,
-	EchoCardType = EchoCardType, 
-	OrderID = OrderID,
-	TransactionType = TransactionType,
-	TransactionDateTime=TransactionDateTime,
-	CallbackURL = CallbackURL,
-	EmailAddressEditable = EmailAddressEditable, 
-	PhoneNumberEditable = PhoneNumberEditable,
-	CV2Mandatory = CV2Mandatory,
-	Address1Mandatory = Address1Mandatory,
-	CityMandatory = CityMandatory,
-	PostCodeMandatory = PostCodeMandatory,
-	StateMandatory = StateMandatory,
-	CountryMandatory = CountryMandatory,
-	ServerResultURL = ServerResultURL,
-	PaymentFormDisplaysResult = PaymentFormDisplaysResult)
-
-
-# now we have the hash, build the request
-
-
-
-data = {
-'HashDigest': sha1_hash, 'MerchantID': MerchantID, 'Amount': Amount, 
-'CurrencyCode': CurrencyCode, 'OrderID': OrderID, 
-'TransactionType': TransactionType, 'TransactionDateTime': TransactionDateTime, 
-'CallbackURL': CallbackURL
-}
-
-r = requests.post(post_addr, params=data)
-print r.url
-
