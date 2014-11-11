@@ -72,6 +72,8 @@ end_str = ":" + last_c2 + last_c1
 TransactionDateTime_remove = TransactionDateTime_unclean[:-2]
 TransactionDateTime = TransactionDateTime_remove + end_str
 
+# Note this only passes all required variables, if you wish to pass the
+# optional variables, please do so, else thy will be left blank/None
 sha1_hash = build_hash(
 	PreSharedKey = PreSharedKey,
 	MerchantID = MerchantID,
