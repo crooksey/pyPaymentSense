@@ -33,7 +33,7 @@ EchoCV2CheckResult = False
 EchoThreeDSecureAuthenticationCheckResult = False
 # Non required variables, we define these now to enable the full building
 # of the URL further down, they cannot be passed as None or they will not
-# be built into the request, which will cause a hash digest
+# be built into the request, which will cause a hash digest error
 ServerResultURL = ""
 AVSOverridePolicy="" 
 ThreeDSecureOverridePolicy="" 
