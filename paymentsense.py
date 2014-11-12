@@ -1,8 +1,8 @@
 # coding: utf-8
-# send payments and information to payment sense API
 import re
 import hashlib
 
+# Function to test whether a variable is a number or not
 def is_number(s):
     try:
         float(s)
@@ -10,14 +10,15 @@ def is_number(s):
     except ValueError:
         return False
 
+# All variables with None are obviously not required by the API, but must
+# be passed as None in order for the hashing to work as expected.
 def build_hash(PreSharedKey, MerchantID, Password, Amount,
 	CurrencyCode, EchoAVSCheckResult, EchoCV2CheckResult, 
 	EchoThreeDSecureAuthenticationCheckResult, EchoCardType, 
 	OrderID, TransactionType, CallbackURL, EmailAddressEditable, 
 	PhoneNumberEditable, CV2Mandatory, Address1Mandatory, CityMandatory, 
 	PostCodeMandatory, StateMandatory, CountryMandatory, ResultDeliveryMethod,
-	PaymentFormDisplaysResult, TransactionDateTime,	AVSOverridePolicy=None, 
-	ThreeDSecureOverridePolicy=None, CV2OverridePolicy=None, 
+	PaymentFormDisplaysResult, TransactionDateTime,	 
 	OrderDescription=None, CustomerName=None, Address1=None, Address2=None, 
 	Address3=None, Address4=None, City=None, State=None, PostCode=None, 
 	CountryCode=None, EmailAddress=None, PhoneNumber=None,
@@ -57,33 +58,6 @@ def build_hash(PreSharedKey, MerchantID, Password, Amount,
 	if echo_card_type_check == False:
 		raise Exception("EchoCardType accepts True or False")
 
-	if AVSOverridePolicy == None:
-		# do nothing, variable not required
-		pass
-	else:
-		# variable has been passed, needs validation
-		if len(AVSOverridePolicy) > 4:
-			raise Exception(
-				"AVSOverridePolicy must be no more than 4 characters")
-
-	if CV2OverridePolicy == None:
-		# do nothing, variable not required
-		pass
-	else:
-		# variable has been passed, needs validation
-		if len(CV2OverridePolicy) > 2:
-			raise Exception(
-				"AVSOverridePolicy must be no more than 2 characters")
-
-	if ThreeDSecureOverridePolicy == None:
-		# do nothing, variable not required
-		pass
-	else:
-		# variable has been passed, needs validation
-		threeds_or_check = isinstance(ThreeDSecureOverridePolicy, bool)
-		if threeds_or_check == False:
-			raise Exception(
-				"ThreeDSecureOverridePolicy accepts True or False")
 
 	if len(OrderID) > 50:
 		raise Exception("OrderID must be no more than 15 characters")
@@ -170,7 +144,6 @@ def build_hash(PreSharedKey, MerchantID, Password, Amount,
 		if cc_test == False:
 			raise Exception("CountryCode need to be a numerical value")
 
-
 	if EmailAddress == None:
 		# do nothing, variable not required
 		pass
@@ -184,14 +157,12 @@ def build_hash(PreSharedKey, MerchantID, Password, Amount,
 		if email_test == None:
 			raise Exception("EmailAddress is an invalid format")
 
-
 	if PhoneNumber == None:
 		# do nothing, variable not required
 		pass
 	elif len(PhoneNumber) > 30:
 		raise Exception(
 			"PostCode must be no more than 30 characters")
-
 
 	email_edit_check = isinstance(EmailAddressEditable, bool)
 	if email_edit_check == False:
@@ -200,7 +171,6 @@ def build_hash(PreSharedKey, MerchantID, Password, Amount,
 	phone_edit_check = isinstance(PhoneNumberEditable, bool)
 	if phone_edit_check == False:
 		raise Exception("PhoneNumberEditable accepts True or False")
-
 
 	cv2_man_check = isinstance(CV2Mandatory, bool)
 	if cv2_man_check == False:
@@ -238,8 +208,11 @@ def build_hash(PreSharedKey, MerchantID, Password, Amount,
 	if pay_form_check == False:
 		raise Exception("PaymentFormDisplaysResult accepts True or False")
 
-	prehash_skeleton = """PreSharedKey={PreSharedKey}&MerchantID={MerchantID}&Password={Password}&Amount={Amount}&CurrencyCode={CurrencyCode}&EchoAVSCheckResult={EchoAVSCheckResult}&EchoCV2CheckResult={EchoCV2CheckResult}&EchoThreeDSecureAuthenticationCheckResult={EchoThreeDSecureAuthenticationCheckResult}&EchoCardType={EchoCardType}&AVSOverridePolicy={AVSOverridePolicy}&CV2OverridePolicy={CV2OverridePolicy}&ThreeDSecureOverridePolicy={ThreeDSecureOverridePolicy}&OrderID={OrderID}&TransactionType={TransactionType}&TransactionDateTime={TransactionDateTime}&CallbackURL={CallbackURL}&OrderDescription={OrderDescription}&CustomerName={CustomerName}&Address1={Address1}&Address2={Address2}&Address3={Address3}&Address4={Address4}&City={City}&State={State}&PostCode={PostCode}&CountryCode={CountryCode}&EmailAddress={EmailAddress}&PhoneNumber={PhoneNumber}&EmailAddressEditable={EmailAddressEditable}&PhoneNumberEditable={PhoneNumberEditable}&CV2Mandatory={CV2Mandatory}&Address1Mandatory={Address1Mandatory}&CityMandatory={CityMandatory}&PostCodeMandatory={PostCodeMandatory}&StateMandatory={StateMandatory}&CountryMandatory={CountryMandatory}&ResultDeliveryMethod={ResultDeliveryMethod}&ServerResultURL={ServerResultURL}&PaymentFormDisplaysResult={PaymentFormDisplaysResult}"""
+	# Pre hash must be in this order
+	# Can't split, no PEP8 awards to be won here
+	prehash_skeleton = """PreSharedKey={PreSharedKey}&MerchantID={MerchantID}&Password={Password}&Amount={Amount}&CurrencyCode={CurrencyCode}&EchoAVSCheckResult={EchoAVSCheckResult}&EchoCV2CheckResult={EchoCV2CheckResult}&EchoThreeDSecureAuthenticationCheckResult={EchoThreeDSecureAuthenticationCheckResult}&EchoCardType={EchoCardType}&OrderID={OrderID}&TransactionType={TransactionType}&TransactionDateTime={TransactionDateTime}&CallbackURL={CallbackURL}&OrderDescription={OrderDescription}&CustomerName={CustomerName}&Address1={Address1}&Address2={Address2}&Address3={Address3}&Address4={Address4}&City={City}&State={State}&PostCode={PostCode}&CountryCode={CountryCode}&EmailAddress={EmailAddress}&PhoneNumber={PhoneNumber}&EmailAddressEditable={EmailAddressEditable}&PhoneNumberEditable={PhoneNumberEditable}&CV2Mandatory={CV2Mandatory}&Address1Mandatory={Address1Mandatory}&CityMandatory={CityMandatory}&PostCodeMandatory={PostCodeMandatory}&StateMandatory={StateMandatory}&CountryMandatory={CountryMandatory}&ResultDeliveryMethod={ResultDeliveryMethod}&ServerResultURL={ServerResultURL}&PaymentFormDisplaysResult={PaymentFormDisplaysResult}"""
 
+	# Format the string
 	prehash = prehash_skeleton.format(
 		PreSharedKey=PreSharedKey,
 		MerchantID=MerchantID,
@@ -251,9 +224,6 @@ def build_hash(PreSharedKey, MerchantID, Password, Amount,
 		EchoThreeDSecureAuthenticationCheckResult=
 			EchoThreeDSecureAuthenticationCheckResult,
 		EchoCardType=EchoCardType,
-		AVSOverridePolicy=AVSOverridePolicy,
-		CV2OverridePolicy=CV2OverridePolicy,
-		ThreeDSecureOverridePolicy=ThreeDSecureOverridePolicy,
 		OrderID=OrderID,
 		TransactionType=TransactionType,
 		TransactionDateTime=TransactionDateTime,
@@ -283,13 +253,15 @@ def build_hash(PreSharedKey, MerchantID, Password, Amount,
 		PaymentFormDisplaysResult=PaymentFormDisplaysResult
 		)
 	
+	# Format the hash to what payment sense expects
 	prehash_remove_none = prehash.replace("None","")
 	# Replace None with empty string, then remove any \n instances
 	prehash_clean = prehash_remove_none.replace("\n","")
-	#prehash_clean = prehash_remove_none.replace(" ","")
-	print prehash_clean
 	# lastly generate the sha1 string to pass to the URL
 	sha1_string = hashlib.sha1(prehash_clean).hexdigest()
+
+	# In the PaymentSense admin console you can change the default hash method
+	# to MD5, HMACMD5 or HMACSHA1, please adjust the hash line accordingly.
 
 	# return sha1 hash of all values
 	return sha1_string

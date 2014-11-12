@@ -1,12 +1,7 @@
 pyPaymentSense
 ==============
 
-Python code to interact with the Payment Sense API.
+Python code to interact with the Payment Sense API, including full validation
+for all variables.
 
-Usage:
-
-from paymentsense import send_payment_sense
-hash = send_payment_sense()
-
-hash will then be the hash key to send to the server
-# NOTE CURRENTLY UN TESTED AND WIP
+For a usage example see example.py, working and tested.
