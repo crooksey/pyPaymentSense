@@ -3,7 +3,7 @@ import datetime
 import pytz
 import requests
 import paymentsense
-from paymentsense import build_hash
+from paymentsense import build_hash, get_paymenturl
 
 # Lets build a POST request
 
@@ -11,20 +11,28 @@ from paymentsense import build_hash
 # These variables are always required #
 #######################################
 post_addr = "https://mms.paymentsensegateway.com/Pages/PublicPages/PaymentForm.aspx"
-PreSharedKey = "XXX"
-MerchantID = "XXX"
-Password = "XXX"
+# Note, the below details are obtained from Payment Snese once you have setup
+# an account, and will be sent in TWO seperate emails when you first register
+PreSharedKey = "YOUR-PSK-HERE"
+MerchantID = "YOUR-MERCHANT-ID"
+Password = "YOUR=PASSWORD-HERE"
 # no decimal point in values, e.g. 34120 is 341.20
 Amount = "34120"
 # 826 is GBP
+# Full list can be found here:
+# http://developers.paymentsense.co.uk/hosted-integration-resources/
 CurrencyCode = "826"
+# Echo certain information back to the server so you can display on your
+# callback page
 EchoAVSCheckResult = False
 EchoCardType = False
 # Anything you want here
-OrderID = "testOrder416"
+OrderID = "test Order416"
 # SALE or PREAUTH
 TransactionType = "SALE"
-# Your url here
+# The url the user will be returned to once payment has been made/declined
+# It is a good idea to inlcude some JS code on this page to show the 
+# user the results of the payment
 CallbackURL = "http://example.com/your_callback"
 # Self explanitory variables
 EmailAddressEditable = True
@@ -40,110 +48,61 @@ PaymentFormDisplaysResult = True
 EchoCV2CheckResult = False
 EchoThreeDSecureAuthenticationCheckResult = False
 # Non required variables, we define these now to enable the full building
-# of the URL further down, they cannot be passed as None or they will not
-# be built into the request, which will cause a hash digest error
-ServerResultURL = ""
-OrderDescription="" 
-CustomerName="" 
-Address1=""
-Address2="" 
-Address3="" 
-Address4="" 
-City="" 
-State="" 
-PostCode="" 
-CountryCode="" 
-EmailAddress="" 
-PhoneNumber=""
+# of the URL, they can be passed as NONE if you do not want to include them
+# in the post
+ServerResultURL = None
+OrderDescription= "Example Description"
+CustomerName = "John Smith"
+Address1 = "15 Faithfull Street"
+Address2 = None
+Address3 = None
+Address4 = None
+City = "Chichester"
+State = "West Sussex"
+PostCode = "XX2 5AW"
+# List of country codes can be found here:
+# http://developers.paymentsense.co.uk/hosted-integration-resources/
+CountryCode = None
+EmailAddress = "luke@solentwholesale.com"
+PhoneNumber = "01243 774626"
 
-# Datetime check, we set this manually, it is not passed to the function
-# TransactionDateTime needs to be in the format of 
-# “YYYY-MM-DD HH:MM:SS +00:00”, with the time in 24hr format, 
-# where 00:00 is the offset from UTC - e.g. “2013-07-22 13:46 +01:00”
+# Now we need to set our timezone
+datetime_tz = datetime.datetime.now(pytz.timezone("Europe/London"))
 
-# Define the output format
-fmt = '%Y-%m-%d %H:%M:%S %z'
-
-# Add your own timezone here
-d = datetime.datetime.now(pytz.timezone("Europe/London"))
-TransactionDateTime_unclean = d.strftime(fmt)
-
-# Now the python datetime method doesnt include a colon in the UTC offset
-# which means we need this lovely messy code below
-last_c1 = TransactionDateTime_unclean[-1]
-last_c2 = TransactionDateTime_unclean[-2]
-end_str = ":" + last_c2 + last_c1
-TransactionDateTime_remove = TransactionDateTime_unclean[:-2]
-TransactionDateTime = TransactionDateTime_remove + end_str
-
-# Note this only passes all required variables, if you wish to pass the
-# optional variables, please do so, else thy will be left blank/None
-sha1_hash = build_hash(
-	PreSharedKey = PreSharedKey,
-	MerchantID = MerchantID,
-	Password = Password,
-	Amount = Amount,
-	CurrencyCode = CurrencyCode,
-	EchoAVSCheckResult = EchoAVSCheckResult, 
-	EchoCV2CheckResult = EchoCV2CheckResult,
-	EchoThreeDSecureAuthenticationCheckResult = EchoThreeDSecureAuthenticationCheckResult,
-	EchoCardType = EchoCardType, 
-	OrderID = OrderID,
-	TransactionType = TransactionType,
-	TransactionDateTime=TransactionDateTime,
-	CallbackURL = CallbackURL,
-	EmailAddressEditable = EmailAddressEditable, 
-	PhoneNumberEditable = PhoneNumberEditable,
-	CV2Mandatory = CV2Mandatory,
-	Address1Mandatory = Address1Mandatory,
-	CityMandatory = CityMandatory,
-	PostCodeMandatory = PostCodeMandatory,
-	StateMandatory = StateMandatory,
-	CountryMandatory = CountryMandatory,
-	ResultDeliveryMethod=ResultDeliveryMethod,
-	PaymentFormDisplaysResult = PaymentFormDisplaysResult)
-
-# Now we have the hash, build the request data pairs
-data = {
-'HashDigest': sha1_hash,
-'MerchantID': MerchantID,
-'Amount': Amount,
-'CurrencyCode': CurrencyCode,
-'EchoAVSCheckResult': EchoAVSCheckResult,
-'EchoCV2CheckResult': EchoCV2CheckResult,
-'EchoThreeDSecureAuthenticationCheckResult': 
-	EchoThreeDSecureAuthenticationCheckResult,
-'EchoCardType': EchoCardType,
-'OrderID': OrderID,
-'TransactionType': TransactionType,
-'TransactionDateTime': TransactionDateTime,
-'CallbackURL': CallbackURL,
-'OrderDescription': OrderDescription,
-'CustomerName': CustomerName,
-'Address1': Address1,
-'Address2': Address2,
-'Address3': Address3,
-'Address4': Address4,
-'City': City,
-'State': State,
-'PostCode': PostCode,
-'CountryCode': CountryCode,
-'EmailAddress': EmailAddress,
-'PhoneNumber': PhoneNumber,
-'EmailAddressEditable': EmailAddressEditable,
-'PhoneNumberEditable': PhoneNumberEditable,
-'CV2Mandatory': CV2Mandatory,
-'Address1Mandatory': Address1Mandatory,
-'CityMandatory': CityMandatory,
-'PostCodeMandatory': PostCodeMandatory,
-'StateMandatory': StateMandatory,
-'CountryMandatory': CountryMandatory,
-'ResultDeliveryMethod': ResultDeliveryMethod,
-'ServerResultURL': ServerResultURL,
-'PaymentFormDisplaysResult': PaymentFormDisplaysResult
-}
-
-r = requests.post(post_addr, params=data)
-url = r.url
-url_clean =  url.replace("None","")
-print 'Clean URL: ' + r.url
+payment_url = get_paymenturl(
+					PreSharedKey=PreSharedKey, MerchantID=MerchantID,
+					Password=Password, Amount=Amount,
+					CurrencyCode=CurrencyCode, 
+					EchoAVSCheckResult=EchoAVSCheckResult,
+					EchoCardType=EchoCardType, OrderID=OrderID,
+					TransactionType=TransactionType, CallbackURL=CallbackURL,
+					EmailAddressEditable=EmailAddressEditable,
+					PhoneNumberEditable=PhoneNumberEditable,
+					CV2Mandatory=CV2Mandatory,
+					Address1Mandatory=Address1Mandatory,
+					CityMandatory=CityMandatory,
+					PostCodeMandatory=PostCodeMandatory,
+					StateMandatory=StateMandatory, 
+					CountryMandatory=CountryMandatory,
+					ResultDeliveryMethod=ResultDeliveryMethod,
+					PaymentFormDisplaysResult=PaymentFormDisplaysResult,
+					EchoCV2CheckResult= EchoCV2CheckResult,
+					EchoThreeDSecureAuthenticationCheckResult=\
+						EchoThreeDSecureAuthenticationCheckResult,
+					ServerResultURL=ServerResultURL,
+					OrderDescription=OrderDescription,
+					CustomerName=CustomerName,
+					Address1=Address1,
+					Address2=Address2,
+					Address3=Address3,
+					Address4=Address4,
+					City=City,
+					State=State,
+					PostCode=PostCode,
+					CountryCode=CountryCode,
+					EmailAddress=EmailAddress,
+					PhoneNumber=PhoneNumber,
+					datetime_tz=datetime_tz,
+					post_addr=post_addr
+					)
+print "Genearated Url: " + payment_url
