@@ -4,6 +4,12 @@ pyPaymentSense
 Python code to interact with the Payment Sense API, including full validation
 for all variables.
 
+The package can be install with:
+```bash
+$ pip install pypaymentsense
+```
+
+
 For a usage example see below:
 
 ```python
@@ -11,8 +17,8 @@ For a usage example see below:
 import datetime
 import pytz
 import requests
-import paymentsense
-from paymentsense import build_hash, get_paymenturl
+import pypaymentsense
+from pypaymentsense import build_hash, get_paymenturl
 
 # Lets build a POST request
 
