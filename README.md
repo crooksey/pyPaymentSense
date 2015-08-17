@@ -58,7 +58,7 @@ CityMandatory = False
 PostCodeMandatory = True
 StateMandatory = False
 CountryMandatory = False
-ResultDeliveryMethod="POST"
+ResultDeliveryMethod="SERVER_PULL"
 PaymentFormDisplaysResult = True
 EchoCV2CheckResult = False
 EchoThreeDSecureAuthenticationCheckResult = False
@@ -122,3 +122,76 @@ payment_url = get_paymenturl(
 			)
 print "Genearated Url: " + payment_url
 ```
+
+For this example we will use the SERVER_PULL method, what this does is, after a 
+successful payment, certain details are passed back to your server, you then 
+send these details back to paymentsense as a request. The request response contains
+the details of the transaction, for example your callback view would have
+the following code:
+
+```python
+import urllib
+PreSharedKey = "YOUR-PSK-HERE"
+Password = "YOUR-PASSWORD-HERE"
+'''
+This code works in pyramid + django, flask users should use the following
+to perform a GET request:
+hashdigest = request.args.get('HashDigest')
+'''
+# Get required variables from the URL string
+hashdigest = request.GET['HashDigest']
+merchantid = request.GET['MerchantID']
+crossreference = request.GET['CrossReference']
+orderid = request.GET['OrderID']
+post_addr = "https://mms.paymentsensegateway.com/Pages/PublicPages/PaymentFormResultHandler.ashx"
+data = {
+    'MerchantID': merchantid,
+    'Password': Password,
+    'CrossReference': crossreference,
+    }
+# Send request to payment sense 
+r = requests.post(post_addr, data=data)
+# Result is the .text
+url_raw =  r.text
+# Decode to a URL string
+url_decode = urllib.unquote(url_raw).decode('utf8') 
+You now have a url string E.g. Var1=abc&VAR2=def, pass this to another view
+```
+
+Now you have a URL string, you can pass this to the view used to show
+the payment, results, in this view you would have code similar to:
+
+```python
+'''
+This code works in pyramid + django, flask users should use the following
+to perform a GET request:
+status_code = request.args.get('StatusCode')
+'''
+# Here we will access the URL string passed from the previous view
+
+if int(request.GET['StatusCode']) == 30:
+    result = "Declined"
+    result_logo = False
+else:
+    result = "Approved"
+    result_logo = True
+
+amount_raw = Decimal(request.GET['Amount'])
+amount = amount_raw / 100
+
+order_desc = request.GET['OrderDescription']
+
+# create a dict with the results in
+payment = {}
+payment['result'] = result
+payment['amount'] = amount
+payment['card_type'] = request.GET['CardType']
+payment['auth_code'] = request.GET['Message']
+payment['order_desc'] = request.GET['OrderDescription']
+payment['trade_name_str'] = trade_name_str
+payment['trans_ref'] = request.GET['OrderID']
+payment['cardholder_name'] = request.GET['CustomerName']
+
+# You can then return the payment dict to the template for rendering
+```
+
