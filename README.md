@@ -2,7 +2,8 @@ pyPaymentSense
 ==============
 
 Python code to interact with the Payment Sense API, including full validation
-for all variables.
+for all variables. Works with python 2/3 (example shown with print command
+from python 2, but all code works with both python2 and python3).
 
 The package can be install with:
 ```bash
