@@ -155,7 +155,7 @@ r = requests.post(post_addr, data=data)
 url_raw =  r.text
 # Decode to a URL string
 url_decode = urllib.unquote(url_raw).decode('utf8') 
-You now have a url string E.g. Var1=abc&VAR2=def, pass this to another view
+#You now have a url string E.g. Var1=abc&VAR2=def, pass this to another view
 ```
 
 Now you have a URL string, you can pass this to the view used to show
