@@ -192,12 +192,12 @@ status_code = request.args.get('StatusCode')
 '''
 # Here we will access the URL string passed from the previous view
 
-if int(request.GET['StatusCode']) == 30:
-    result = "Declined"
-    result_logo = False
-else:
-    result = "Approved"
+if int(request.GET['StatusCode']) == 0:
+    payment['result'] = "Approved"
     result_logo = True
+else:
+    payment['result'] = "Declined"
+    result_logo = False
 
 amount_raw = Decimal(request.GET['Amount'])
 amount = amount_raw / 100
