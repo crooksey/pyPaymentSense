@@ -250,8 +250,9 @@ def build_hash(PreSharedKey, MerchantID, Password, Amount,
 	prehash_remove_none = prehash.replace("None","")
 	# Replace None with empty string, then remove any \n instances
 	prehash_clean = prehash_remove_none.replace("\n","")
+	prehash_clean_encode = prehash_clean.encode('utf-8')
 	# lastly generate the sha1 string to pass to the URL
-	sha1_string = hashlib.sha1(prehash_clean).hexdigest()
+	sha1_string = hashlib.sha1(prehash_clean_encode).hexdigest()
 
 	# In the PaymentSense admin console you can change the default hash method
 	# to MD5, HMACMD5 or HMACSHA1, please adjust the hash line accordingly.
