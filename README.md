@@ -154,9 +154,31 @@ data = {
 r = requests.post(post_addr, data=data)
 # Result is the .text
 url_raw =  r.text
-# Decode to a URL string
-url_decode = urllib.unquote(url_raw).decode('utf8') 
-#You now have a url string E.g. Var1=abc&VAR2=def, pass this to another view
+# Test if start of string StatusCode=0 (12 chars)
+# The response returned via the callback will contain the variable StatusCode
+# twice, if the first instance of the string shows a 0, this indicates the
+# transaction is valid, and will contain data regarding the transaction.
+url_test = url_raw[0:12]
+trans_ok = "StatusCode=0"
+trans_ok_len = len(trans_ok)
+
+if url_test == trans_ok:
+    url_clean = url_raw[trans_ok_len:]
+    url_decode = urllib.parse.unquote(url_clean)
+    # Remove the first instance of StatusCode in the string, we no longer 
+    # need it
+else:
+    # Else the first StatusCode comes back as 30, this indicates the 
+    # transaction is not legit and we then need to format the data
+    # differently, we just need to replace the spaces with "+"
+    url_decode = url_raw.replace(" ", "+")
+# Yes, we can all agree that the API that returns different data with the 
+# same variable name is awful design, but we can thank paymentsense for
+# their great design here. As the response further in will also contain 
+# StatusCode again, this will show if the transaction has been approved
+# or declined.
+# You now have a url string (variable url_deconde) E.g. Var1=abc&VAR2=def, 
+pass this to another view for processing.
 ```
 
 Now you have a URL string, you can pass this to the view used to show
