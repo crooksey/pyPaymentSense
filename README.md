@@ -178,7 +178,7 @@ else:
 # StatusCode again, this will show if the transaction has been approved
 # or declined.
 # You now have a url string (variable url_deconde) E.g. Var1=abc&VAR2=def, 
-pass this to another view for processing.
+# pass this to another view for processing.
 ```
 
 Now you have a URL string, you can pass this to the view used to show
