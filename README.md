@@ -218,3 +218,4 @@ payment['cardholder_name'] = request.GET['CustomerName']
 # You can then return the payment dict to the template for rendering
 ```
 
+Notes: Still current as of 5th June 2019
