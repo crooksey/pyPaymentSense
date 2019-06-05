@@ -2,8 +2,7 @@ pyPaymentSense
 ==============
 
 Python code to interact with the Payment Sense API, including full validation
-for all variables. Works with python 2/3 (example shown with print command
-from python 2, but all code works with both python2 and python3).
+for all variables. Works with python 2/3.
 
 The package can be install with:
 ```bash
@@ -121,7 +120,7 @@ payment_url = get_paymenturl(
 			datetime_tz=datetime_tz,
 			post_addr=post_addr
 			)
-print "Genearated Url: " + payment_url
+print ("Genearated Url: " + payment_url)
 ```
 
 For this example we will use the SERVER_PULL method, what this does is, after a 
